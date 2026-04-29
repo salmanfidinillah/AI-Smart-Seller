@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Smart Seller - Pro Dashboard</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Load Chart.js untuk Dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            color: #2d3436;
+        }
+
+        /* Navbar Sederhana */
+        .navbar {
+            background: #ffffff;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            margin: 0;
+            font-size: 20px;
+            color: #0984e3;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 20px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 16px;
+            color: #636e72;
+            cursor: pointer;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        .tab-btn.active {
+            background: #0984e3;
+            color: white;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* Mode Konten */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        .content-section.active {
+            display: block;
+        }
+
+        /* Card Style */
+        .card {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Form Style */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group { margin-bottom: 20px; }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: #636e72;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #dfe6e9;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus {
+            border-color: #0984e3;
+            outline: none;
+        }
+
+        button.action-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #0984e3 0%, #6c5ce7 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+
+        button.action-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3); }
+
+        /* Result Style */
+        #result {
+            margin-top: 25px;
+            display: none;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #0984e3;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid, .dashboard-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <h1>🚀 AI Smart Seller</h1>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('predict-sec', this)">Prediksi AI</button>
+            <button class="tab-btn" onclick="switchTab('dashboard-sec', this)">Dashboard Data</button>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <!-- SECTION 1: PREDIKSI AI -->
+        <div id="predict-sec" class="content-section active card">
+            <h2 style="margin-top:0;">Cek Potensi Produkmu</h2>
+            <p style="color:#636e72; margin-bottom: 20px;">Masukkan data produk untuk dianalisis oleh AI berdasarkan pasar Indonesia.</p>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Kategori Produk</label>
+                    <select id="category">
+                        <option value="Pakaian">Pakaian</option>
+                        <option value="Elektronik">Elektronik</option>
+                        <option value="Makanan">Makanan</option>
+                        <option value="Kecantikan">Kecantikan</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Diskon (%)</label>
+                    <input type="number" id="discount" placeholder="Contoh: 10" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Harga Produk (Rp)</label>
+                    <input type="number" id="price" placeholder="Contoh: 150000">
+                </div>
+                <div class="form-group">
+                    <label>Ongkos Kirim (Rp)</label>
+                    <input type="number" id="freight" placeholder="Contoh: 15000">
+                </div>
+            </div>
+
+            <button class="action-btn" id="btn-predict" onclick="predict()">Mulai Analisis AI</button>
+            
+            <div id="result"></div>
+        </div>
+
+        <!-- SECTION 2: DASHBOARD -->
+        <div id="dashboard-sec" class="content-section card">
+            <h2 style="margin-top:0;">📊 Dashboard Pasar Indonesia</h2>
+            <p style="color:#636e72; margin-bottom: 20px;">Insight data transaksi untuk strategi bisnismu.</p>
+            
+            <button class="action-btn" onclick="loadDashboard()" style="margin-bottom: 20px; background: #2d3436;">Muat Data Terbaru</button>
+
+            <div class="dashboard-grid">
+                <div>
+                    <h3 style="text-align:center; font-size: 16px;">Penjualan per Kategori</h3>
+                    <div class="chart-container">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="text-align:center; font-size: 16px;">Rasio Sukses (Laris vs Batal)</h3>
+                    <div class="chart-container">
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Fungsi pindah tab
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+
+            if(tabId === 'dashboard-sec') loadDashboard();
+        }
+
+        const formatRp = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+
+        // Fungsi Prediksi AI
+        async function predict() {
+            const resultDisplay = document.getElementById("result");
+            const price = document.getElementById("price").value;
+            const freight = document.getElementById("freight").value;
+            const discount = document.getElementById("discount").value;
+            const category = document.getElementById("category").value;
+
+            if (!price || !freight) {
+                alert("Harga dan Ongkir wajib diisi!"); return;
+            }
+
+            document.getElementById("btn-predict").innerText = "⏳ Menganalisis...";
+            
+            try {
+                const res = await fetch(`http://127.0.0.1:8000/predict?price=${price}&freight=${freight}&discount=${discount}&category=${category}`);
+                const data = await res.json();
+                
+                const isLaris = data.prediction.includes("POTENSI LARIS");
+                const color = isLaris ? "#00b894" : "#d63031";
+
+                resultDisplay.style.display = "block";
+                resultDisplay.style.borderLeftColor = color;
+                resultDisplay.innerHTML = `
+                    <h3 style="color: ${color}; margin-top:0;">${data.prediction} (${(data.confidence * 100).toFixed(1)}%)</h3>
+                    <p><strong>💡 Rekomendasi AI:</strong><br>${data.recommendation}</p>
+                    <hr style="border: 0; border-top: 1px dashed #ccc; margin: 10px 0;">
+                    <small style="color:#636e72;">Harga Pasar Kompetitor: ${formatRp(data.optimal_price)}</small>
+                `;
+            } catch (err) {
+                alert("Gagal terhubung ke AI. Pastikan server FastAPI (api.py) berjalan.");
+            } finally {
+                document.getElementById("btn-predict").innerText = "Mulai Analisis AI";
+            }
+        }
+
+        // Fungsi Load Dashboard dengan Chart.js
+        let barChartInstance = null;
+        let pieChartInstance = null;
+
+        async function loadDashboard() {
+            try {
+                const res = await fetch("http://127.0.0.1:8000/stats");
+                const data = await res.json();
+
+                // Bersihkan chart lama jika ada
+                if(barChartInstance) barChartInstance.destroy();
+                if(pieChartInstance) pieChartInstance.destroy();
+
+                // Render Bar Chart (Kategori)
+                const ctxBar = document.getElementById('barChart').getContext('2d');
+                barChartInstance = new Chart(ctxBar, {
+                    type: 'bar',
+                    data: {
+                        labels: data.categories,
+                        datasets: [{
+                            label: 'Total Transaksi',
+                            data: data.category_totals,
+                            backgroundColor: '#0984e3',
+                            borderRadius: 5
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+
+                // Render Pie Chart (Status)
+                const ctxPie = document.getElementById('pieChart').getContext('2d');
+                pieChartInstance = new Chart(ctxPie, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.status_labels,
+                        datasets: [{
+                            data: data.status_totals,
+                            backgroundColor: ['#00b894', '#d63031']
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+
+            } catch(err) {
+                console.log("Gagal memuat dashboard. Pastikan server nyala.");
+            }
+        }
+    </script>
+</body>
+</html>
