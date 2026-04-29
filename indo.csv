@@ -1,0 +1,6 @@
+order_id;Harga;Ongkir;Diskon;Kategori;Status Pesanan;total_qty
+ORD01;150000;15000;10;Pakaian;Selesai;2
+ORD02;200000;20000;0;Elektronik;Batal;1
+ORD03;50000;10000;5;Makanan;Selesai;5
+ORD04;300000;25000;20;Elektronik;Selesai;1
+ORD05;75000;15000;0;Pakaian;Batal;2
